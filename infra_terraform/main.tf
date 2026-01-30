@@ -89,38 +89,6 @@ module "EKS" {
 
 
 
-# # IAM for EKS
-# module "IAM" {
-#   source           = "./modules/IAM"
-#   env              = var.env
-#   eks_cluster_name = "my-eks-cluster"
-# }
-
-# # EKS Cluster
-# module "EKS" {
-#   source             = "./modules/EKS"
-#   cluster_name       = "my-eks-cluster"
-#   env                = var.env
-
-#   subnet_ids = [
-#     module.public_subnet_1.public_subnet_id,
-#     module.public_subnet_2.public_subnet_id,
-#     module.private_subnet_1.private_subnet_id,
-#     module.private_subnet_2.private_subnet_id
-#   ]
-
-#   private_subnet_ids = [
-#     module.private_subnet_1.private_subnet_id,
-#     module.private_subnet_2.private_subnet_id
-#   ]
-
-#   iam_module = module.IAM
-# }
-
-
-
-
-
 
 
 
