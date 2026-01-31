@@ -1,0 +1,70 @@
+
+trigger: none
+pr: none
+
+parameters:
+  - name: env
+    displayName: Environment
+    type: string
+    default: prod
+    values: [nonprod, prod]
+
+  - name: destroy
+    displayName: Destroy
+    type: boolean
+    default: false
+
+variables:
+  TF_DIR: infra_terraform
+  TF_VAR_FILE: prod.auto.tfvars
+  AWS_SERVICE_CONNECTION: fatma_aws
+  AWS_REGION: us-east-1
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+
+- task: TerraformInstaller@1
+  displayName: Install Terraform
+  inputs:
+    terraformVersion: latest
+
+- task: AWSShellScript@1
+  displayName: Terraform init
+  inputs:
+    awsCredentials: $(AWS_SERVICE_CONNECTION)
+    regionName: $(AWS_REGION)
+    scriptType: inline
+    inlineScript: |
+      set -euo pipefail
+      cd "$(TF_DIR)"
+      terraform init
+
+- task: AWSShellScript@1
+  displayName: Terraform plan
+  inputs:
+    awsCredentials: $(AWS_SERVICE_CONNECTION)
+    regionName: $(AWS_REGION)
+    scriptType: inline
+    inlineScript: |
+      set -euo pipefail
+      cd "$(TF_DIR)"
+      if [ "${{ parameters.destroy }}" = "True" ]; then
+        terraform plan -destroy -out=tfplan -var-file="$(TF_VAR_FILE)"
+      else
+        terraform plan -out=tfplan -var-file="$(TF_VAR_FILE)"
+      fi
+
+- task: AWSShellScript@1
+  displayName: Terraform apply
+  inputs:
+    awsCredentials: $(AWS_SERVICE_CONNECTION)
+    regionName: $(AWS_REGION)
+    scriptType: inline
+    inlineScript: |
+      set -euo pipefail
+      cd "$(TF_DIR)"
+      terraform apply -auto-approve tfplan
+
