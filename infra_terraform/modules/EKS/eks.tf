@@ -40,7 +40,7 @@ resource "aws_eks_fargate_profile" "default" {
   subnet_ids             = var.private_subnet_ids
 
   selector {
-    namespace = "default"
+    namespace = "fargate"
   }
 
   depends_on = [aws_eks_cluster.this]
